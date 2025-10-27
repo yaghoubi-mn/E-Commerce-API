@@ -63,9 +63,9 @@ class Cart(models.Model):
     expired = "EXPIRED"
 
     STATUS_CHOICES = (
-        (active, "Active"),
-        (checkedOut, "Checked Out"),
-        (expired, "Expired"),
+        (active, "فعال"),
+        (checkedOut, "پرداخت شده"),
+        (expired, "منقضی شده"),
     )
 
     cart_id = models.AutoField(primary_key=True)
