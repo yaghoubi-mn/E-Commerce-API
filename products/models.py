@@ -1,6 +1,5 @@
 from django.db import models
-
-# from accounts.models import
+from accounts.models import User
 
 
 class BaseModels(models.Model):
@@ -69,14 +68,14 @@ class Cart(models.Model):
     )
 
     cart_id = models.AutoField(primary_key=True)
-    # TODO
-    # user_id = models.ForeignKey(, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # the price of products in cart before applying discount
     subtotal = models.DecimalField(max_digits=6, decimal_places=2)
 
-    # TODO
-    # discount_id = models.ForeignKey(, null=True, blank=True, on_delete=models.SET_NULL)
+    discount_id = models.ForeignKey(
+        "d", null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     # the amount of money that user should be paying
     total_amount = models.DecimalField(max_digits=6, decimal_places=2)
