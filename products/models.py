@@ -53,6 +53,10 @@ class Category(BaseModels):
         verbose_name_plural = "Categories"
 
 
+class Discount(BaseModels):
+    # TODO: implement this
+    pass
+
 class Cart(models.Model):
 
     # status choices
@@ -74,7 +78,7 @@ class Cart(models.Model):
     subtotal = models.DecimalField(max_digits=6, decimal_places=2)
 
     discount_id = models.ForeignKey(
-        "d", null=True, blank=True, on_delete=models.SET_NULL
+        Discount, null=True, blank=True, on_delete=models.SET_NULL
     )
 
     # the amount of money that user should be paying

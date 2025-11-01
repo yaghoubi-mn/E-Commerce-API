@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # users.User
 # addresses.Address
@@ -23,19 +26,19 @@ class Order(models.Model):
     ]
 
     user = models.ForeignKey(
-        'users.User',  # مدل کاربر از اپلیکیشن users
+        User,  # مدل کاربر از اپلیکیشن users
         on_delete=models.RESTRICT,
         related_name='orders',
         verbose_name='کاربر'
     )
     shipping_address = models.ForeignKey(
-        'addresses.Address',  # مدل آدرس از اپلیکیشن addresses
+        'accounts.Address',  # مدل آدرس از اپلیکیشن addresses
         on_delete=models.RESTRICT,
         related_name='orders',
         verbose_name='آدرس حمل‌ونقل'
     )
     discount = models.ForeignKey(
-        'discounts.Discount',  # مدل تخفیف از اپلیکیشن discounts
+        'products.Discount',  # مدل تخفیف از اپلیکیشن discounts
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -99,13 +102,13 @@ class OrderItem(models.Model):
 
 class DiscountUsage(models.Model):
     discount = models.ForeignKey(
-        'discounts.Discount',  # مدل تخفیف از اپلیکیشن discounts
+        'products.Discount',  # مدل تخفیف از اپلیکیشن discounts
         on_delete=models.CASCADE,
         related_name='usages',
         verbose_name='تخفیف'
     )
     user = models.ForeignKey(
-        'users.User',  # مدل کاربر از اپلیکیشن users
+        User,  # مدل کاربر از اپلیکیشن users
         on_delete=models.CASCADE,
         related_name='discount_usages',
         verbose_name='کاربر'
