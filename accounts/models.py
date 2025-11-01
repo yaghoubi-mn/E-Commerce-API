@@ -17,15 +17,21 @@ class Role(models.Model):
 
 class User(AbstractBaseUser):
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
-    email = models.EmailField(null=True)
+    email = models.EmailField(null=True, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=12, validators=[validate_phone_number])
+    phone_number = models.CharField(max_length=12, unique=True, validators=[validate_phone_number])
     avatar_url = models.URLField(null=True)
     registered_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
+
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}, {self.phone_number}"
 
 
 class Admin(models.Model):
