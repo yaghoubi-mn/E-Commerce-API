@@ -48,7 +48,12 @@ class TempRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'phone_number']
+        fields = ['email', 'first_name', 'last_name', 'phone_number', 'password']
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+        user = User.objects.create_user(password=password, **validated_data)
+        return user
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     phone_field = 'phone_number'
@@ -60,9 +65,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if phone and password:
             user = authenticate(request=self.context.get('request'), phone_number=phone, password=password)
             if not user:
-                raise serializers.ValidationError(_("Invalid username or password"))
+                raise serializers.ValidationError("Invalid username or password")
         else:
-            raise serializers.ValidationError(_("Empty phone or password"))
+            raise serializers.ValidationError("Empty phone or password")
 
         refresh = self.get_token(user)
         data = {

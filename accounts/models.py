@@ -57,3 +57,7 @@ class Seller(models.Model):
     verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_seller')
     average_monthly_sales = models.PositiveIntegerField(default=0)
 
+
+class Address(models.Model):
+    # TODO: implement this
+    pass
