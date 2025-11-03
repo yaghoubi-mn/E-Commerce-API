@@ -1,16 +1,15 @@
 from django.db import models
 from accounts.models import User
+    
 
 
-class BaseModels(models.Model):
+class Product(models.Model):
+
     name = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
-
-
-class Product(BaseModels):
 
     product_id = models.AutoField(primary_key=True)
     category_id = models.ForeignKey(
@@ -47,7 +46,13 @@ class ProductImage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class Category(BaseModels):
+class Category(models.Model):
+
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
 
     category_id = models.AutoField(primary_key=True)
     parent_id = models.ForeignKey(
