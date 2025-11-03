@@ -13,7 +13,7 @@ def test_category_creation_without_auth_returns_401(category_data):
     data = category_data
 
     response = client.post(url, data)
-
+    
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
@@ -26,7 +26,7 @@ def test_category_creation_returns_201(make_authorized_client, category_data):
     data = category_data
 
     response = client.post(url, data)
-
+    print("fuckup", response.json())
     assert response.status_code == status.HTTP_201_CREATED
 
 
@@ -55,7 +55,7 @@ def test_get_single_category_returns_200(make_authorized_client):
         icon_url="", name="sport", description="this is test", display_order=1
     )
 
-    url = reverse("categories-detail", kwargs={"pk": categ.id})
+    url = reverse("categories-detail", kwargs={"pk": categ.category_id})
 
     response = client.get(url)
 
@@ -83,7 +83,7 @@ def test_delete_category_returns_204(make_authorized_client):
         icon_url="", name="sport", description="this is test", display_order=1
     )
 
-    url = reverse("categories-detail", kwargs={"pk": categ.id})
+    url = reverse("categories-detail", kwargs={"pk": categ.category_id})
 
     response = client.delete(url)
 

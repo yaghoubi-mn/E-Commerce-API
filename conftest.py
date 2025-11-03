@@ -25,6 +25,7 @@ def category_data():
     return {
         "icon_url": "",
         "name": "sport",
+        "slug": "sport-thisistest",
         "description": "this is test",
         "display_order": 1,
     }
