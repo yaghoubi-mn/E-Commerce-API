@@ -23,7 +23,7 @@ def make_authorized_client(db):
 @pytest.fixture
 def category_data():
     return {
-        "icon_url": "",
+        "icon_url": "https://test.com",
         "name": "sport",
         "slug": "sport-thisistest",
         "description": "this is test",
