@@ -2,8 +2,6 @@ import pytest
 from accounts.models import User, Role
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.test import APIClient
-from products.models import Category
-import factory
 
 
 @pytest.fixture
