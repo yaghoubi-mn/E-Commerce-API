@@ -1,0 +1,7 @@
+[project]
+name="E-Commerce-API"
+version="0.1.0"
+
+
+[tool.basedpyright]
+typeCheckingMode="basic"
