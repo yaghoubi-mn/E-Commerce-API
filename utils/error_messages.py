@@ -1,0 +1,15 @@
+OTP_VERIFIED_SUCCESSFULLY = "OTP verified successfully."
+USER_REGISTERED_SUCCESSFULLY = "User registered successfully."
+OTP_RATE_LIMIT = "Rate limit for sending OTP code. Please try again later."
+OTP_EXPIRED = "The OTP code has expired. Please request a new one."
+INVALID_TEMP_TOKEN = "Invalid temp token."
+INVALID_OTP = "Invalid OTP."
+PHONE_NUMBER_VALIDATION_REQUIRED = "Please validate phone number first."
+INVALID_TOKEN = "Invalid token."
+PHONE_PASSWORD_REQUIRED = "Both phone number and password are required."
+INVALID_PHONE_OR_PASSWORD = "Invalid phone number or password."
+INVALID_PHONE_NUMBER_FORMAT = "Invalid phone number format. It must be in the format 09XXXXXXXXX."
+USER_LOGGEDOUT_SUCCESSFULLY = "User logged out successfully."
+INVALID_REFRESH_TOKEN = 'Invalid or expired refresh token'
+INVALID_PASSWORD = "Old password is not correct"
+USER_NOT_FOUND = 'User not found.'
