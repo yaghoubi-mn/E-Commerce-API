@@ -5,18 +5,17 @@ import uuid
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import authenticate
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.core.cache import caches
 from django.db import transaction
 
 from .models import Admin, Role, Seller, User
 from utils.validators import validate_phone_number
-from utils.error_messages import (
-    INVALID_PASSWORD, INVALID_REFRESH_TOKEN, OTP_RATE_LIMIT, OTP_EXPIRED, INVALID_TEMP_TOKEN, INVALID_OTP,
-    PHONE_NUMBER_VALIDATION_REQUIRED, INVALID_TOKEN,
-    PHONE_PASSWORD_REQUIRED, INVALID_PHONE_OR_PASSWORD, USER_NOT_FOUND
-)
+from utils import error_messages
 
 auth_cache = caches['auth']
 
@@ -62,7 +61,7 @@ class SendOTPSerializer(serializers.Serializer):
             time_diff = timezone.now() - data['created_at']
             resend_limit = timedelta(minutes=settings.PHONE_NUMBER_RESEND_OTP_MINUTES)
             if time_diff < resend_limit:
-                raise serializers.ValidationError({'phone_number': OTP_RATE_LIMIT})
+                raise serializers.ValidationError({'phone_number': error_messages.ERR_OTP_RATE_LIMIT})
 
         return super().validate(attrs)
 
@@ -91,16 +90,21 @@ class OTPVerificationSerializer(serializers.Serializer):
         temp_token = str(attrs['temp_token'])
         otp = attrs['otp']
 
+        # Check if user with this phone number already exists and is verified
+        verified_data = auth_cache.get(f'verified_{phone_number}')
+        if verified_data:
+            raise serializers.ValidationError({'phone_number': error_messages.ERR_USER_ALREADY_VERIFIED})
+
         data = auth_cache.get(phone_number)
 
         if not data:
-            raise serializers.ValidationError({'phone_number': OTP_EXPIRED})
+            raise serializers.ValidationError({'phone_number': error_messages.ERR_OTP_EXPIRED})
 
         if data.get('temp_token') != temp_token:
-            raise serializers.ValidationError({'temp_token': INVALID_TEMP_TOKEN})
+            raise serializers.ValidationError({'temp_token': error_messages.ERR_INVALID_TEMP_TOKEN})
 
         if data.get('otp') != otp:
-            raise serializers.ValidationError({'otp': INVALID_OTP})
+            raise serializers.ValidationError({'otp': error_messages.ERR_INVALID_OTP})
 
         return super().validate(attrs)
 
@@ -117,10 +121,20 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'phone_number', 'temp_token', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'email': {'required': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+        }
 
     def validate_phone_number(self, value):
         validate_phone_number(value)
+        return value
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError(error_messages.ERR_SHORT_PASSWORD)
         return value
 
     def validate(self, attrs):
@@ -130,10 +144,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         data = auth_cache.get(f'verified_{phone_number}')
 
         if not data:
-            raise serializers.ValidationError({'phone_number': PHONE_NUMBER_VALIDATION_REQUIRED})
+            raise serializers.ValidationError({'phone_number': error_messages.ERR_PHONE_NUMBER_VALIDATION_REQUIRED})
 
         if data.get('temp_token') != temp_token:
-            raise serializers.ValidationError({'temp_token': INVALID_TOKEN})
+            raise serializers.ValidationError({'temp_token': error_messages.ERR_INVALID_TOKEN})
 
         return super().validate(attrs)
 
@@ -157,12 +171,23 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         phone = attrs.get(self.phone_field)
         password = attrs.get('password')
 
-        if not (phone and password):
-            raise serializers.ValidationError(PHONE_PASSWORD_REQUIRED)
+        if not phone:
+            raise serializers.ValidationError({"phone_number": error_messages.ERR_REQUIRED_FIELD})
+        if not password:
+            raise serializers.ValidationError({"password": error_messages.ERR_REQUIRED_FIELD})
+            
+        user = User.objects.filter(phone_number=phone).first()
+
+        if user is None:
+            raise exceptions.AuthenticationFailed(error_messages.ERR_INVALID_PHONE_OR_PASSWORD)
+            
+        if not user.is_active:
+            raise exceptions.AuthenticationFailed(error_messages.ERR_USER_IS_NOT_ACTIVE)
 
         user = authenticate(request=self.context.get('request'), phone_number=phone, password=password)
-        if not user:
-            raise serializers.ValidationError(INVALID_PHONE_OR_PASSWORD)
+        
+        if user is None:
+            raise exceptions.AuthenticationFailed(error_messages.ERR_INVALID_PHONE_OR_PASSWORD)
 
         refresh = self.get_token(user)
         return {
@@ -175,17 +200,20 @@ class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     def validate(self, attrs):
-        from rest_framework_simplejwt.tokens import RefreshToken, TokenError
         self.token = attrs['refresh']
+
+        # Check if the token is already blacklisted first
+        if BlacklistedToken.objects.filter(token__token=self.token).exists():
+            raise serializers.ValidationError({'refresh': error_messages.ERR_REFRESH_TOKEN_BLACKLISTED})
+
         try:
             RefreshToken(self.token)
         except TokenError:
-            raise serializers.ValidationError({'refresh': INVALID_REFRESH_TOKEN})
+            raise serializers.ValidationError({'refresh': error_messages.ERR_INVALID_REFRESH_TOKEN})
 
         return attrs
 
     def save(self, **kwargs):
-        from rest_framework_simplejwt.tokens import RefreshToken
         try:
             RefreshToken(self.token).blacklist()
         except Exception:
@@ -199,15 +227,36 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name', 'phone_number', 'avatar_url']
         read_only_fields = ['phone_number']
 
+    def validate_first_name(self, value):
+        if len(value) < 2 or len(value) > 30:
+            raise serializers.ValidationError(error_messages.ERR_INVALID_FIRST_NAME)
+        return value
+
+    def validate_last_name(self, value):
+        if len(value) < 2 or len(value) > 30:
+            raise serializers.ValidationError(error_messages.ERR_INVALID_LAST_NAME)
+        return value
+
+    def validate_email(self, value):
+        if not value: # This handles the 'empty email' case where the error should be 'This field may not be blank.'
+            raise serializers.ValidationError(error_messages.ERR_INVALID_EMAIL) # Raise INVALID_EMAIL for empty email as well as invalid format.
+        serializers.EmailField().to_internal_value(value) # DRF's EmailField does more comprehensive validation.
+        return value
+
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
 
     def validate_old_password(self, value):
         user = self.context['request'].user
         if not user.check_password(value):
-            raise serializers.ValidationError(INVALID_PASSWORD)
+            raise serializers.ValidationError(error_messages.ERR_WRONG_PASSWORD)
+        return value
+
+    def validate_new_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError(error_messages.ERR_SHORT_PASSWORD)
         return value
 
     def save(self, **kwargs):
@@ -221,6 +270,11 @@ class ResetPasswordSerializer(serializers.Serializer):
     temp_token = serializers.UUIDField()
     new_password = serializers.CharField(required=True)
 
+    def validate_new_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError(error_messages.ERR_SHORT_PASSWORD)
+        return value
+
     def validate(self, attrs):
         phone_number = attrs['phone_number']
         temp_token = str(attrs['temp_token'])
@@ -228,15 +282,15 @@ class ResetPasswordSerializer(serializers.Serializer):
         data = auth_cache.get(f'verified_{phone_number}')
 
         if not data:
-            raise serializers.ValidationError({'phone_number': PHONE_NUMBER_VALIDATION_REQUIRED})
+            raise serializers.ValidationError({'phone_number': error_messages.ERR_PHONE_NUMBER_VALIDATION_REQUIRED})
 
         if data.get('temp_token') != temp_token:
-            raise serializers.ValidationError({'temp_token': INVALID_TOKEN})
+            raise serializers.ValidationError({'temp_token': error_messages.ERR_INVALID_TOKEN})
         
         try:
             self.user = User.objects.get(phone_number=phone_number)
         except User.DoesNotExist:
-            raise serializers.ValidationError({'phone_number': USER_NOT_FOUND})
+            raise serializers.ValidationError({'phone_number': error_messages.ERR_USER_NOT_FOUND})
 
         return attrs
 

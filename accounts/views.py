@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from utils.error_messages import OTP_VERIFIED_SUCCESSFULLY, USER_REGISTERED_SUCCESSFULLY, USER_LOGGEDOUT_SUCCESSFULLY
+from utils import error_messages
 
 from .serializers import (
     CustomTokenObtainPairSerializer,
@@ -38,7 +38,7 @@ class VerifyOTPView(APIView):
         serializer = OTPVerificationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail": OTP_VERIFIED_SUCCESSFULLY}, status=status.HTTP_200_OK)
+            return Response({"detail": error_messages.OTP_VERIFIED_SUCCESSFULLY}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -50,7 +50,7 @@ class RegisterView(APIView):
         if serializer.is_valid():
             role, _ = Role.objects.get_or_create(id=1, defaults={"name": "customer", "display_name": "customer", "description": 'test', "permissions": '{}'})
             serializer.save(role=role)
-            return Response({"detail": USER_REGISTERED_SUCCESSFULLY}, status=status.HTTP_201_CREATED)
+            return Response({"detail": error_messages.USER_REGISTERED_SUCCESSFULLY}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -65,7 +65,7 @@ class LogoutView(APIView):
         serializer = LogoutSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail": USER_LOGGEDOUT_SUCCESSFULLY}, status=status.HTTP_200_OK)
+            return Response({"detail": error_messages.USER_LOGGEDOUT_SUCCESSFULLY}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -73,6 +73,8 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        if not request.user.is_active:
+            return Response({'detail': error_messages.ERR_USER_IS_NOT_ACTIVE}, status=status.HTTP_401_UNAUTHORIZED)
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -91,7 +93,7 @@ class ChangePasswordView(APIView):
         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail": "Password updated successfully"}, status=status.HTTP_200_OK)
+            return Response({"detail": error_messages.PASSWORD_SUCCESSFULLY_CHANGED}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
