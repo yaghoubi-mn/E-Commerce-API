@@ -73,7 +73,7 @@ jobs:
 
       - name: Check migrations
         run: |
-          python "$MANAGE_PATH" makemigrations --dry-run --check --verbosity 3 > migration_logs.txt
+          python manage.py makemigrations --dry-run --check --verbosity 3 > migration_logs.txt
       
       - name: Upload migration logs
         if: failure()
