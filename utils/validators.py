@@ -1,12 +1,14 @@
 import re
 from django.core.exceptions import ValidationError
 
+from utils.error_messages import ERR_INVALID_PHONE_NUMBER_FORMAT
+
 def validate_phone_number(value):
     """
     Validates that the phone number is a valid Iranian phone number.
     """
     if not re.match(r'^09\d{9}$', value):
-        raise ValidationError('Invalid phone number format. It must be in the format 09XXXXXXXXX.')
+        raise ValidationError(ERR_INVALID_PHONE_NUMBER_FORMAT)
 
 def validate_bank_account(value):
     """
