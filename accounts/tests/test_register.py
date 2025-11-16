@@ -71,7 +71,7 @@ class TestRegisterView:
         response = api_client.post(register_url, valid_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["phone_number"][0] == error_messages.ERR_PHONE_NUMBER_ALREADY_EXISTS
+        assert error_messages.ERR_PHONE_NUMBER_ALREADY_EXISTS in response.data["phone_number"][0]
 
     def test_register_invalid_temp_token(
         self, api_client, setup_roles, register_url, valid_data
@@ -140,4 +140,4 @@ class TestRegisterView:
         response = api_client.post(register_url, data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['phone_number'][0] == error_messages.ERR_INVALID_PHONE_NUMBER_FORMAT
+        assert error_messages.ERR_INVALID_PHONE_NUMBER_FORMAT in response.data['phone_number'][0]

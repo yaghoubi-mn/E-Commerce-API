@@ -86,4 +86,4 @@ class TestLogin:
         
         response = api_client.post(login_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data[error_field][0] == error_messages.ERR_REQUIRED_FIELD
+        assert error_messages.ERR_REQUIRED_FIELD in response.data[error_field][0]

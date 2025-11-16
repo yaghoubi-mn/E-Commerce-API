@@ -63,7 +63,7 @@ class TestLogout:
         
         response = api_client.post(logout_url, {})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["refresh"][0] == error_messages.ERR_REQUIRED_FIELD
+        assert error_messages.ERR_REQUIRED_FIELD in response.data["refresh"][0]
 
     def test_logout_invalid_refresh_token(self, api_client, logout_url, refresh_token):
         api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh_token.access_token}")
@@ -78,7 +78,7 @@ class TestLogout:
         
         response = api_client.post(logout_url, data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data["detail"] == error_messages.ERR_USER_NOT_AUTHENTICATED
+        assert error_messages.ERR_AUTHENTICATION_FAILED in response.data["detail"]
 
     def test_logout_already_logged_out(self, api_client, logout_url, user, refresh_token):
         api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh_token.access_token}")

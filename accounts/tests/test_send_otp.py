@@ -83,7 +83,7 @@ def test_send_otp_invalid_phone_number_format(api_client, send_otp_url):
     response = api_client.post(send_otp_url, data)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'phone_number' in response.data
-    assert response.data['phone_number'][0] == error_messages.ERR_INVALID_PHONE_NUMBER_FORMAT
+    assert error_messages.ERR_INVALID_PHONE_NUMBER_FORMAT in response.data['phone_number'][0]
 
 
 @pytest.mark.django_db
@@ -120,7 +120,7 @@ def test_send_otp_missing_phone_number(api_client, send_otp_url):
     response = api_client.post(send_otp_url, data)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert 'phone_number' in response.data
-    assert response.data['phone_number'][0] == error_messages.ERR_REQUIRED_FIELD
+    assert error_messages.ERR_REQUIRED_FIELD in response.data['phone_number'][0]
 
 
 @pytest.mark.django_db

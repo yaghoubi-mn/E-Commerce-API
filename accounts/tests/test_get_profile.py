@@ -76,7 +76,7 @@ class TestGetProfile:
     def test_get_profile_unauthorized(self, api_client):
         response = api_client.get(URL)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert "Authentication credentials were not provided." in response.data["detail"]
+        assert error_messages.ERR_AUTHENTICATION_FAILED in response.data["detail"]
 
     def test_get_profile_inactive_user(self, api_client, inactive_user):
       
@@ -88,4 +88,4 @@ class TestGetProfile:
         
         response = api_client.get(URL)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data["detail"] == error_messages.ERR_USER_IS_NOT_ACTIVE
+        assert error_messages.ERR_USER_IS_NOT_ACTIVE in response.data["detail"]

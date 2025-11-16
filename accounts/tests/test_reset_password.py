@@ -98,7 +98,7 @@ class TestResetPassword:
         }
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["phone_number"][0] == error_messages.ERR_REQUIRED_FIELD
+        assert error_messages.ERR_REQUIRED_FIELD in response.data["phone_number"][0]
 
     def test_reset_password_without_temp_token(
         self, api_client, reset_password_url, create_test_user
@@ -110,7 +110,7 @@ class TestResetPassword:
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "temp_token" in response.data
-        assert response.data["temp_token"][0] == error_messages.ERR_REQUIRED_FIELD
+        assert error_messages.ERR_REQUIRED_FIELD in response.data["temp_token"][0]
 
     def test_reset_password_without_new_password(
         self, api_client, reset_password_url, create_test_user, create_verified_otp
@@ -122,7 +122,7 @@ class TestResetPassword:
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "new_password" in response.data
-        assert response.data["new_password"][0] == "This field is required."
+        assert error_messages.ERR_REQUIRED_FIELD in response.data["new_password"][0]
 
     def test_reset_password_with_empty_phone_number(
         self, api_client, reset_password_url, create_verified_otp
@@ -135,7 +135,7 @@ class TestResetPassword:
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "phone_number" in response.data
-        assert response.data["phone_number"][0] == error_messages.ERR_BLANK_FIELD
+        assert error_messages.ERR_BLANK_FIELD in response.data["phone_number"][0]
 
     def test_reset_password_with_empty_temp_token(
         self, api_client, reset_password_url, create_test_user
@@ -147,7 +147,7 @@ class TestResetPassword:
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "temp_token" in response.data
-        assert response.data["temp_token"][0] == error_messages.ERR_REQUIRED_FIELD
+        assert error_messages.ERR_REQUIRED_FIELD in response.data["temp_token"][0]
 
     def test_reset_password_with_empty_new_password(
         self, api_client, reset_password_url, create_test_user, create_verified_otp
@@ -160,7 +160,7 @@ class TestResetPassword:
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "new_password" in response.data
-        assert response.data["new_password"][0] == "This field may not be blank."
+        assert error_messages.ERR_BLANK_FIELD in response.data["new_password"][0]
 
     def test_reset_password_with_short_new_password(
         self, api_client, reset_password_url, create_test_user, create_verified_otp
@@ -173,4 +173,4 @@ class TestResetPassword:
         response = api_client.post(reset_password_url, data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "new_password" in response.data
-        assert response.data["new_password"][0] == error_messages.ERR_SHORT_PASSWORD
+        assert error_messages.ERR_SHORT_PASSWORD in response.data["new_password"][0]

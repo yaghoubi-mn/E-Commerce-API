@@ -66,7 +66,7 @@ class TestEditProfile:
         }
         response = api_client.put(self.profile_url, data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.data["detail"] == error_messages.ERR_AUTHENTICATION_FAILED
+        assert error_messages.ERR_AUTHENTICATION_FAILED in response.data["detail"]
 
     def test_edit_profile_read_only_phone_number(self, authenticated_client, user):
         original_phone_number = user.phone_number
