@@ -74,6 +74,12 @@ jobs:
       - name: Check migrations
         run: |
           python manage.py makemigrations --dry-run --check --verbosity 3 > migration_logs.txt
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: testdb
+          DB_USER: user
+          DB_PASSWORD: password
       
       - name: Upload migration logs
         if: failure()
