@@ -1,10 +1,12 @@
 name: Run Tests
 
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 
 jobs:
   test:
@@ -23,17 +25,28 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.12
         uses: actions/setup-python@v3
         with:
           python-version: "3.12"
+      
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-django pytest-cov factory_boy
+      
       - name: Run Tests
         run: |
           pytest --junitxml=pytest-logs/results.xml --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=85
@@ -43,15 +56,34 @@ jobs:
           DB_NAME: testdb
           DB_USER: user
           DB_PASSWORD: password
+      
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: pytest-logs
           path: pytest-logs
+      
       - name: Upload coverage report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage.xml
+
+      - name: Check migrations
+        run: |
+          python manage.py makemigrations --dry-run --check --verbosity 3 > migration_logs.txt
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: testdb
+          DB_USER: user
+          DB_PASSWORD: password
+      
+      - name: Upload migration logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-logs
+          path: migration_logs.txt
