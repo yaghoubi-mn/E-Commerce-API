@@ -11,8 +11,8 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    product_id = models.AutoField(primary_key=True)
-    category_id = models.ForeignKey(
+    product = models.AutoField(primary_key=True)
+    category = models.ForeignKey(
         "Category", null=True, blank=True, on_delete=models.SET_NULL
     )
 
@@ -36,7 +36,7 @@ class Product(models.Model):
 class ProductImage(models.Model):
 
     product_image_id = models.AutoField(primary_key=True)
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     url = models.URLField()
     thumbnail_url = models.URLField()
@@ -54,9 +54,9 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    category_id = models.AutoField(primary_key=True)
-    parent_id = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.SET_NULL
+    category = models.AutoField(primary_key=True)
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.SET_NULL, related_name='parent_id'
     )
 
     slug = models.SlugField()
@@ -84,7 +84,7 @@ class Discount(models.Model):
         ("categories", "دسته بندی ها"),
     ]
 
-    discount_id = models.AutoField(primary_key=True)
+    discount = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
 
@@ -129,7 +129,7 @@ class Cart(models.Model):
     # the price of products in cart before applying discount
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    discount_id = models.ForeignKey(
+    discount = models.ForeignKey(
         Discount, null=True, blank=True, on_delete=models.SET_NULL
     )
 
