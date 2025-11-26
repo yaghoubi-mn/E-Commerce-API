@@ -81,7 +81,21 @@ class Seller(models.Model):
 
 
 class Address(models.Model):
-    # TODO: implement this
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    province = models.CharField(max_length=100)
+    street = models.CharField(max_length=255)
+    postal_code = models.CharField(max_length=20)
+    full_address = models.TextField()
+    reciever_name = models.CharField(max_length=100)
+    reciever_phone = models.CharField(max_length=20)
+    latitude = models.DecimalField(max_digits=10, decimal_places=8)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="ایجاد شده در")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="بروزرسانی شده در")
+    
     class Meta:
         verbose_name = "آدرس"
         verbose_name_plural = "آدرس ها"
