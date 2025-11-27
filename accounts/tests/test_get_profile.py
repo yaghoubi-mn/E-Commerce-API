@@ -11,42 +11,11 @@ URL = reverse("profile")
 
 
 @pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def user_role():
-    role, _ = Role.objects.get_or_create(
-        id=1,
-        defaults={
-            "name": "customer",
-            "display_name": "customer",
-            "description": "test",
-            "permissions": {},
-        },
-    )
-    return role
-
-
-@pytest.fixture
-def active_user(user_role):
-    return User.objects.create_user(
-        phone_number="09123456789",
-        password="testpassword",
-        role=user_role,
-        first_name="John",
-        last_name="Doe",
-        email="john.doe@example.com",
-    )
-
-
-@pytest.fixture
-def inactive_user(user_role):
+def inactive_user(customer_role):
     user = User.objects.create_user(
         phone_number="09123456788",
         password="testpassword",
-        role=user_role,
+        role=customer_role,
         first_name="John",
         last_name="Doe",
         email="john.doe.inactive@example.com",
@@ -57,21 +26,22 @@ def inactive_user(user_role):
 
 
 @pytest.fixture
-def authenticated_api_client(api_client, active_user):
-    refresh = RefreshToken.for_user(active_user)
+def authenticated_api_client(api_client, user):
+    refresh = RefreshToken.for_user(user)
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
     return api_client
 
 
 @pytest.mark.django_db
 class TestGetProfile:
-    def test_get_profile_success(self, authenticated_api_client, active_user):
+    def test_get_profile_success(self, authenticated_api_client, user):
+        # user is active
         response = authenticated_api_client.get(URL)
         assert response.status_code == status.HTTP_200_OK
-        assert response.data["phone_number"] == active_user.phone_number
-        assert response.data["first_name"] == active_user.first_name
-        assert response.data["last_name"] == active_user.last_name
-        assert response.data["email"] == active_user.email
+        assert response.data["phone_number"] == user.phone_number
+        assert response.data["first_name"] == user.first_name
+        assert response.data["last_name"] == user.last_name
+        assert response.data["email"] == user.email
 
     def test_get_profile_unauthorized(self, api_client):
         response = api_client.get(URL)

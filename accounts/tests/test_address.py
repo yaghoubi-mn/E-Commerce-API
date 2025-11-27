@@ -8,33 +8,6 @@ from utils import error_messages
 
 
 @pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def customer_role():
-    return Role.objects.create(id=1, name="customer", display_name="customer", description="test", permissions={})
-
-
-@pytest.fixture
-def user(db, customer_role):
-    user = User.objects.create_user(
-        email='test@example.com',
-        phone_number='09123456789',
-        password='testpassword',
-        role=customer_role
-    )
-    user.is_active = True
-    user.save()
-    return user
-
-@pytest.fixture
-def authenticated_client(api_client, user):
-    api_client.force_authenticate(user=user)
-    return api_client
-
-@pytest.fixture
 def address_list_url():
     return reverse('address-list')
 

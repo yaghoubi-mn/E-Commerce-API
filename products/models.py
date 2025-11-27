@@ -11,9 +11,8 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    product = models.AutoField(primary_key=True)
     category = models.ForeignKey(
-        "Category", null=True, blank=True, on_delete=models.SET_NULL
+        "Category", null=True, on_delete=models.SET_NULL
     )
 
     brand = models.CharField(max_length=100)
@@ -54,17 +53,16 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    category = models.AutoField(primary_key=True)
     parent = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.SET_NULL, related_name='parent_id'
+        "self", null=True, on_delete=models.SET_NULL
     )
 
     slug = models.SlugField()
 
     icon_url = models.URLField()
-    banner_url = models.URLField(null=True, blank=True)
+    banner_url = models.URLField(null=True)
 
-    display_order = models.IntegerField(null=True, blank=True)
+    display_order = models.IntegerField(null=True)
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -84,7 +82,6 @@ class Discount(models.Model):
         ("categories", "دسته بندی ها"),
     ]
 
-    discount = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     description = models.TextField()
 
@@ -123,14 +120,13 @@ class Cart(models.Model):
         (expired, "منقضی شده"),
     )
 
-    cart_id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # the price of products in cart before applying discount
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     discount = models.ForeignKey(
-        Discount, null=True, blank=True, on_delete=models.SET_NULL
+        Discount, null=True, on_delete=models.SET_NULL
     )
 
     # the amount of money that user should be paying

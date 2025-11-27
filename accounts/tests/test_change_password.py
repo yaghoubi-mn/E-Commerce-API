@@ -8,47 +8,12 @@ from accounts.models import User, Role
 from utils import error_messages
 
 
-@pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def customer_role():
-    role, _ = Role.objects.get_or_create(
-        id=1,
-        defaults={
-            "name": "customer",
-            "display_name": "customer",
-            "description": "test",
-            "permissions": {},
-        },
-    )
-    return role
-
-
-@pytest.fixture
-def user(customer_role):
-    return User.objects.create_user(
-        phone_number="09123456789",
-        password="old_password",
-        role=customer_role,
-    )
-
-
-@pytest.fixture
-def authenticated_client(api_client, user):
-    refresh = RefreshToken.for_user(user)
-    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
-    return api_client
-
-
 change_password_url = reverse("change_password")
 
 
 @pytest.mark.django_db
-def test_change_password_success(authenticated_client, user):
-    data = {"old_password": "old_password", "new_password": "new_password"}
+def test_change_password_success(authenticated_client, user, user_password):
+    data = {"old_password": user_password, "new_password": "new_password"}
     response = authenticated_client.put(change_password_url, data)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["detail"] == error_messages.PASSWORD_SUCCESSFULLY_CHANGED

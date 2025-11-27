@@ -11,35 +11,10 @@ from utils import error_messages
 INVALID_REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYyNzQzNjU5OSwianRpIjoiM2JkM2VkYjRjZDk3NGU5MmEwY2Q1Y2Q5Y2Q5Y2Q5Y2QiLCJ1c2VyX2lkIjoxfQ.5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z"
 
 
-@pytest.fixture
-def api_client():
-    return APIClient()
-
 
 @pytest.fixture
 def logout_url():
     return reverse("logout")
-
-
-@pytest.fixture
-def role():
-    role, _ = Role.objects.get_or_create(
-        id=1,
-        defaults={
-            "name": "customer",
-            "display_name": "customer",
-            "description": "test",
-            "permissions": {},
-        },
-    )
-    return role
-
-
-@pytest.fixture
-def user(role):
-    return User.objects.create_user(
-        phone_number="09123456789", password="testpassword", role=role
-    )
 
 
 @pytest.fixture
