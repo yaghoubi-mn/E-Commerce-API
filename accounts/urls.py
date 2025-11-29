@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.routers import DefaultRouter
 
 from .views import (
     CustomTokenObtainPairView,
@@ -10,7 +11,11 @@ from .views import (
     ProfileView,
     ChangePasswordView,
     ResetPasswordView,
+    AddressViewSet,
 )
+
+router = DefaultRouter()
+router.register(r'addresses', AddressViewSet, basename='address')
 
 urlpatterns = [
     path("accounts/send-otp/", SendOTPView.as_view(), name="send_otp"),
@@ -22,4 +27,5 @@ urlpatterns = [
     path('accounts/profile/', ProfileView.as_view(), name='profile'),
     path('accounts/register/', RegisterView.as_view(), name='register'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
+    path('accounts/', include(router.urls)),
 ]

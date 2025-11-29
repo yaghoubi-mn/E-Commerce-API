@@ -8,29 +8,8 @@ from utils import error_messages
 
 
 @pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
 def login_url():
     return reverse('login')
-
-
-@pytest.fixture
-def customer_role():
-    return Role.objects.create(id=1, name="customer", display_name="customer", description="test", permissions={})
-
-@pytest.fixture
-def user(db, customer_role):
-    user = User.objects.create_user(
-        phone_number='09123456789',
-        password='testpassword',
-        role=customer_role
-    )
-    user.is_active = True
-    user.save()
-    return user
 
 
 @pytest.mark.django_db

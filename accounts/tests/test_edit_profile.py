@@ -8,36 +8,6 @@ from accounts.models import User, Role
 from utils import error_messages
 
 
-@pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def user_role():
-    return Role.objects.create(id=1, name="customer", display_name="customer", description="test", permissions={})
-
-
-@pytest.fixture
-def user(user_role):
-    user_data = {
-        "phone_number": "09123456789",
-        "password": "testpassword",
-        "role": user_role,
-        "first_name": "John",
-        "last_name": "Doe",
-        "email": "john.doe@example.com",
-    }
-    return User.objects.create_user(**user_data)
-
-
-@pytest.fixture
-def authenticated_client(api_client, user):
-    refresh = RefreshToken.for_user(user)
-    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
-    return api_client
-
-
 @pytest.mark.django_db
 class TestEditProfile:
 

@@ -3,6 +3,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser
+from django.shortcuts import get_object_or_404
+
 
 from utils import error_messages
 
@@ -16,8 +21,29 @@ from .serializers import (
     ProfileSerializer,
     ChangePasswordSerializer,
     ResetPasswordSerializer,
+    AddressSerializer,
 )
-from .models import Role
+from .models import Role, Address, User
+from .permissions import HavePermission
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Always return addresses for the current user
+        return Address.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_permissions(self):
+        # No special permissions needed for listing user's own addresses
+        if self.action == 'user_addresses':
+            return [IsAuthenticated()]
+        return super().get_permissions()
+
 
 
 class SendOTPView(APIView):

@@ -8,23 +8,13 @@ from django.core.cache import caches
 from accounts.models import Role
 from utils import error_messages
 
-@pytest.fixture
-def customer_role():
-    return Role.objects.create(id=1, name="customer", display_name="customer", description="test", permissions={})
-
 auth_cache = caches['auth']
 
-@pytest.fixture
-def api_client():
-    return APIClient()
 
 @pytest.fixture
 def verify_otp_url():
     return reverse('verify_otp')
 
-@pytest.fixture
-def phone_number():
-    return '09123456789'
 
 @pytest.fixture
 def otp():

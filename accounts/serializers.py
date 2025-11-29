@@ -13,7 +13,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from django.core.cache import caches
 from django.db import transaction
 
-from .models import Admin, Role, Seller, User
+from .models import Admin, Role, Seller, User, Address
 from utils.validators import validate_phone_number
 from utils import error_messages
 
@@ -298,3 +298,13 @@ class ResetPasswordSerializer(serializers.Serializer):
         self.user.set_password(self.validated_data['new_password'])
         self.user.save()
         auth_cache.delete(f'verified_{self.user.phone_number}')
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = [
+            'id', 'user', 'title', 'full_address', 'postal_code',
+            'city', 'latitude', 'longitude', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['user', 'created_at', 'updated_at']

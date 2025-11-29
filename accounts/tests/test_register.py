@@ -11,11 +11,6 @@ from utils import error_messages
 auth_cache = caches["auth"]
 
 
-@pytest.fixture
-def api_client():
-    return APIClient()
-
-
 @pytest.fixture(scope="session")
 def register_url():
     return reverse("register")
