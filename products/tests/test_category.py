@@ -13,7 +13,7 @@ def test_category_creation_without_auth_returns_401(category_data):
     data = category_data
 
     response = client.post(url, data)
-    
+
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
