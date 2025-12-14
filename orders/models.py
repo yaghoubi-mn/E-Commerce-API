@@ -127,9 +127,6 @@ class DiscountUsage(models.Model):
             models.Index(fields=['user']),
             models.Index(fields=['used_at']),
         ]
-        constraints = [
-            models.UniqueConstraint(fields=['discount', 'order'], name='unique_discount_order')
-        ]
         verbose_name = 'استفاده از تخفیف'
         verbose_name_plural = 'استفاده‌های تخفیف'
 
