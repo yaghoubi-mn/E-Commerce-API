@@ -3,12 +3,18 @@ from accounts.models import User, Role
 from products.models import Category
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.test import APIClient
+from datetime import datetime, timedelta
+
 
 # returns authorized client to send HTTP request and a user object to be used accross user relations
 @pytest.fixture
 def make_authorized_client(db):
-    def _make(phone_number):
-        role = Role.objects.create(name="Test", permissions="{}")
+    def _make(phone_number, isAdmin=False):
+        role = (
+            Role.objects.create(name="Test", permissions="{}")
+            if not isAdmin
+            else Role.objects.create(name="Admin", permissions="{}")
+        )
         user = User.objects.create_user(
             phone_number=phone_number, role=role, password="something"
         )
