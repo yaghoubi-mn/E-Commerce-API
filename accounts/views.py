@@ -1,10 +1,12 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated
 
-from .serializers import TempRegisterSerializer, CustomTokenObtainPairSerializer
+from .serializers import TempRegisterSerializer, CustomTokenObtainPairSerializer, RoleSerializer
 from .models import Role
 
 class TempRegisterView(APIView):
@@ -21,4 +23,11 @@ class TempRegisterView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class= CustomTokenObtainPairSerializer
 
+
+class RoleViewset(viewsets.ModelViewSet):
+    serializer_class = RoleSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
+    queryset = Role.objects.all()
 

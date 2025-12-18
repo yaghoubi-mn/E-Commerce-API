@@ -68,6 +68,21 @@ def product_data(category_data):
 
 
 @pytest.fixture
+def role_data():
+
+    def _make():
+
+        return {
+            "name": "test",
+            "display_name": "Test",
+            "permissions": {'test': 'test'}
+        }
+
+    return _make
+
+
+
+@pytest.fixture
 def cart_data(make_authorized_client):
     """Arguments:
     is_post_method_data(Default = Fasle): if turns true in field that are foreign keys will be a number
