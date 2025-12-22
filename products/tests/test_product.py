@@ -17,7 +17,7 @@
 #     assert response.status_code == status.HTTP_204_NO_CONTENT
 from django.urls import reverse
 from rest_framework import status
-
+import pytest
 from products.models import Product, Category
 from products.serializers import ProductSerializer
 
