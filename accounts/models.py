@@ -6,24 +6,32 @@ from utils.validators import validate_bank_account, validate_phone_number
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=50)
-    display_name = models.CharField(max_length=50)
-    description = models.TextField(null=True)
-    permissions = models.JSONField()
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=50, verbose_name="نام")
+    display_name = models.CharField(max_length=50, verbose_name="نام نمایشی")
+    description = models.TextField(null=True, verbose_name="توضیحات")
+    permissions = models.JSONField(verbose_name="سطوح دسترسی")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="ایجاد شده در")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="بروزرسانی شده در")
+
+    class Meta:
+        verbose_name = "نقش"
+        verbose_name_plural = "نقش ها"
+
+    def __str__(self):
+        return self.display_name
 
 
 class User(AbstractBaseUser):
-    role = models.ForeignKey(Role, on_delete=models.PROTECT)
-    email = models.EmailField(null=True, unique=True)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=12, unique=True, validators=[validate_phone_number])
-    avatar_url = models.URLField(null=True)
-    registered_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    role = models.ForeignKey(Role, on_delete=models.PROTECT, verbose_name="نقش")
+    email = models.EmailField(null=True, unique=True, verbose_name="ایمیل")
+    first_name = models.CharField(max_length=100, verbose_name="نام")
+    last_name = models.CharField(max_length=100, verbose_name="نام خانوادگی")
+    phone_number = models.CharField(max_length=12, unique=True, validators=[validate_phone_number], verbose_name="شماره تلفن")
+    avatar_url = models.URLField(null=True, verbose_name="آدرس آواتار")
+    registered_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت نام")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="تاریخ بروزرسانی")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
 
     objects = UserManager()
 
@@ -35,29 +43,60 @@ class User(AbstractBaseUser):
 
 
 class Admin(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='admin')
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='admin', verbose_name="کاربر")
 
-    job_title = models.CharField(max_length=100)
+    job_title = models.CharField(max_length=100, verbose_name="عنوان شغلی")
     objects = AdminManager()
-    cantact_phone = models.CharField(max_length=20, validators=[validate_phone_number])
-    work_phone = models.CharField(max_length=20, validators=[validate_phone_number])
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_admins')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    cantact_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره تماس")
+    work_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره کاری")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_admins', verbose_name="ایجاد شده توسط")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="ایجاد شده در")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="بروزرسانی شده در")
+
+    class Meta:
+        verbose_name = "ادمین"
+        verbose_name_plural = "ادمین ها"
+
+    def __str__(self):
+        return str(self.user)
 
 
 class Seller(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='seller')
-    cantact_phone = models.CharField(max_length=20, validators=[validate_phone_number])
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='seller', verbose_name="کاربر")
+    cantact_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره تماس")
     objects = SellerManager()
-    work_phone = models.CharField(max_length=20, validators=[validate_phone_number])
-    bank_account = models.CharField(max_length=100, validators=[validate_bank_account])
-    is_verified = models.BooleanField(default=False)
-    verified_at = models.DateTimeField(null=True)
-    verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_seller')
-    average_monthly_sales = models.PositiveIntegerField(default=0)
+    work_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره کاری")
+    bank_account = models.CharField(max_length=100, validators=[validate_bank_account], verbose_name="حساب بانکی")
+    is_verified = models.BooleanField(default=False, verbose_name="تایید شده")
+    verified_at = models.DateTimeField(null=True, verbose_name="تایید شده در")
+    verified_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_seller', verbose_name="تایید شده توسط")
+    average_monthly_sales = models.PositiveIntegerField(default=0, verbose_name="میانگین فروش ماهانه")
+
+    class Meta:
+        verbose_name = "فروشنده"
+        verbose_name_plural = "فروشندگان"
+
+    def __str__(self):
+        return str(self.user)
 
 
 class Address(models.Model):
-    # TODO: implement this
-    pass
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100, verbose_name="عنوان")
+    province = models.CharField(max_length=100, verbose_name="استان")
+    street = models.CharField(max_length=255, verbose_name="خیابان")
+    city = models.CharField(max_length=100, verbose_name="شهر")
+    postal_code = models.CharField(max_length=20, verbose_name="کد پستی")
+    full_address = models.TextField(verbose_name="آدرس کامل")
+    reciever_name = models.CharField(max_length=100, verbose_name="نام گیرنده")
+    reciever_phone = models.CharField(max_length=20, verbose_name="شماره تماس گیرنده")
+    latitude = models.DecimalField(max_digits=10, decimal_places=8, verbose_name="عرض جغرافیایی")
+    longitude = models.DecimalField(max_digits=11, decimal_places=8, verbose_name="طول جغرافیایی")
+    is_default = models.BooleanField(default=False, verbose_name="پیش فرض")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="ایجاد شده در")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="بروزرسانی شده در")
+    
+    class Meta:
+        verbose_name = "آدرس"
+        verbose_name_plural = "آدرس ها"

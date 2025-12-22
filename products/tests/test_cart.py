@@ -72,7 +72,7 @@ def test_get_single_cart_returns_200(make_authorized_client, cart_data):
 
     cart = Cart.objects.create(**data)
 
-    url = reverse("carts-detail", kwargs={"pk": cart.cart_id})
+    url = reverse("carts-detail", kwargs={"pk": cart.id})
 
     response = client.get(url)
 
@@ -89,7 +89,7 @@ def test_get_single_not_existence_cart_returns_404(make_authorized_client, cart_
 
     cart = Cart.objects.create(**data)
 
-    url = reverse("carts-detail", kwargs={"pk": cart.cart_id + 1})
+    url = reverse("carts-detail", kwargs={"pk": cart.id + 1})
 
     response = client.get(url)
 
@@ -105,7 +105,7 @@ def test_delete_cart_returns_204(make_authorized_client, cart_data):
 
     cart = Cart.objects.create(**data)
 
-    url = reverse("carts-detail", kwargs={"pk": cart.cart_id})
+    url = reverse("carts-detail", kwargs={"pk": cart.id})
 
     response = client.delete(url)
 
@@ -131,8 +131,8 @@ def test_add_items_to_cart_returns_200(make_authorized_client, cart_data, produc
     product_two = Product.objects.create(**product)
 
     request_data = [
-        {"product_id": product_one.product_id, "quantity": 2},
-        {"product_id": product_two.product_id, "quantity": 2},
+        {"product_id": product_one.id, "quantity": 2},
+        {"product_id": product_two.id, "quantity": 2},
     ]
 
     url = reverse("carts-me-items")
