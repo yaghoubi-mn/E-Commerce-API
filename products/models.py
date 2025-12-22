@@ -95,7 +95,7 @@ class Discount(models.Model):
         ("categories", "دسته بندی ها"),
     ]
 
-    discount_id = models.AutoField(primary_key=True)
+
     title = models.CharField(max_length=100)
     description = models.TextField()
 
