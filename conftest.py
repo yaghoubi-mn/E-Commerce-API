@@ -105,3 +105,38 @@ def cart_data(make_authorized_client):
         }
 
     return _make
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def customer_role():
+    return Role.objects.create(id=1, name="customer", display_name="customer", description="test", permissions={})
+
+
+@pytest.fixture
+def phone_number():
+    return '09123456789'
+
+
+@pytest.fixture
+def user_password():
+    return 'testpassword'
+
+@pytest.fixture
+def user(db, customer_role, phone_number, user_password):
+    user = User.objects.create_user(
+        email='test@example.com',
+        phone_number=phone_number,
+        password=user_password,
+        role=customer_role
+    )
+    user.is_active = True
+    user.save()
+    return user
+
+@pytest.fixture
+def authenticated_client(api_client, user):
+    api_client.force_authenticate(user=user)
+    return api_client

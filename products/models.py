@@ -11,10 +11,17 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    product_id = models.AutoField(primary_key=True)
-    category_id = models.ForeignKey(
-        "Category", null=True, blank=True, on_delete=models.SET_NULL
+    category = models.ForeignKey(
+        "Category", null=True, on_delete=models.SET_NULL
     )
+
+    brand = models.CharField(max_length=100)
+    slug = models.CharField(max_length=255, unique=True)
+    sku = models.CharField(max_length=100, unique=True)
+
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    weight_kg = models.DecimalField(max_digits=8, decimal_places=3)
+    dimensions = models.CharField(max_length=50)
 
     brand = models.CharField(max_length=100)
     slug = models.CharField(max_length=255, unique=True)
@@ -30,13 +37,19 @@ class Product(models.Model):
     review_count = models.PositiveIntegerField(default=0)
     sold_count = models.PositiveIntegerField(default=0)
 
+    view_count = models.PositiveIntegerField(default=0)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+
+    review_count = models.PositiveIntegerField(default=0)
+    sold_count = models.PositiveIntegerField(default=0)
+
     is_featured = models.BooleanField(default=False)
 
 
 class ProductImage(models.Model):
 
     product_image_id = models.AutoField(primary_key=True)
-    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     url = models.URLField()
     thumbnail_url = models.URLField()
@@ -54,17 +67,29 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
-    category_id = models.AutoField(primary_key=True)
-    parent_id = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.SET_NULL
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    parent = models.ForeignKey(
+        "self", null=True, on_delete=models.SET_NULL
     )
 
     slug = models.SlugField()
 
     icon_url = models.URLField()
-    banner_url = models.URLField(null=True, blank=True)
+    banner_url = models.URLField(null=True)
 
     display_order = models.IntegerField(null=True, blank=True)
+    display_order = models.IntegerField(null=True)
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -123,14 +148,13 @@ class Cart(models.Model):
         (expired, "منقضی شده"),
     )
 
-    cart_id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # the price of products in cart before applying discount
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    discount_id = models.ForeignKey(
-        Discount, null=True, blank=True, on_delete=models.SET_NULL
+    discount = models.ForeignKey(
+        Discount, null=True, on_delete=models.SET_NULL
     )
 
     # the amount of money that user should be paying
