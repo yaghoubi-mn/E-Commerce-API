@@ -11,7 +11,7 @@ def test_create_product_without_auth_returns_401(product_data):
 
     url = reverse("products-list")
 
-    data = product_data(True)
+    data = product_data
 
     response = client.post(url, data, format="json")
 
@@ -25,7 +25,7 @@ def test_create_product_with_auth_returns_201(make_authorized_client, product_da
 
     client, _ = make_authorized_client("09140329711")
 
-    data = product_data(True)
+    data = product_data
 
     url = reverse("products-list")
 
@@ -42,7 +42,7 @@ def test_get_products_returns_200(make_authorized_client, product_data):
 
     url = reverse("products-list")
 
-    data = product_data()
+    data = product_data
 
     Product.objects.create(**data).save()
 
@@ -57,7 +57,7 @@ def test_get_single_product_returns_200(make_authorized_client, product_data):
 
     client, _ = make_authorized_client("09140329711")
 
-    data = product_data()
+    data = product_data
 
     product = Product.objects.create(**data)
 
@@ -76,7 +76,7 @@ def test_get_single_not_existence_product_returns_404(
 
     client, _ = make_authorized_client("09140329711")
 
-    data = product_data()
+    data = product_data
 
     product = Product.objects.create(**data)
 
