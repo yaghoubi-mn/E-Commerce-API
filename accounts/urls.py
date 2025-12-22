@@ -20,8 +20,8 @@ from .views import (
 router = DefaultRouter()
 router.register(r'addresses', AddressViewSet, basename='address')
 
-router = DefaultRouter()
-router.register(r"roles", RoleViewset, basename="roles")
+role_router = DefaultRouter()
+role_router.router.register(r"roles", RoleViewset, basename="roles")
 urlpatterns = [
     path("accounts/send-otp/", SendOTPView.as_view(), name="send_otp"),
     path("accounts/verify-otp/", VerifyOTPView.as_view(), name="verify_otp"),
@@ -33,4 +33,4 @@ urlpatterns = [
     path('accounts/register/', RegisterView.as_view(), name='register'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     path('accounts/', include(router.urls)),
-] + router.urls
+] + role_router.urls
