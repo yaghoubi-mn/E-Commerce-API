@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from accounts.models import User
     
@@ -144,3 +145,28 @@ class Cart(models.Model):
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, db_index=True)
+    rating = models.PositiveIntegerField(validators=[MinValueValidator(1, 'Min value is 1'), MaxValueValidator(5, 'Max value is 5')])
+    content = models.TextField()
+    
+    is_verified_purchase = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False, db_index=True)
+    helpful_count = models.PositiveIntegerField(default=0)
+    unhelpful_count = models.PositiveIntegerField(default=0)
+    reply_to = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='replies', null=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class CommentVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    is_helpful = models.BooleanField()
+
+    class Meta:
+        unique_together = ('user', 'comment')
+        
