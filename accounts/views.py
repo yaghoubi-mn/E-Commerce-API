@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import TempRegisterSerializer, CustomTokenObtainPairSerializer, RoleSerializer
+from .serializers import CustomTokenObtainPairSerializer, RoleSerializer
 from .models import Role
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -15,6 +15,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 
+ 
 
 from utils import error_messages
 
