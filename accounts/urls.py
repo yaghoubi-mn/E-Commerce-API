@@ -28,11 +28,10 @@ urlpatterns = [
     path('accounts/login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('accounts/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('accounts/register/', TempRegisterView.as_view(), name='temp_register'),
-] + router.urls
     path('accounts/reset-password/', ResetPasswordView.as_view(), name='reset_password'),
     path('accounts/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('accounts/profile/', ProfileView.as_view(), name='profile'),
     path('accounts/register/', RegisterView.as_view(), name='register'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     path('accounts/', include(router.urls)),
-]
+] + router.urls
