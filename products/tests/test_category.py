@@ -55,7 +55,7 @@ def test_get_single_category_returns_200(make_authorized_client):
         icon_url="", name="sport", description="this is test", display_order=1
     )
 
-    url = reverse("categories-detail", kwargs={"pk": categ.category_id})
+    url = reverse("categories-detail", kwargs={"pk": categ.id})
 
     response = client.get(url)
 
@@ -83,7 +83,7 @@ def test_delete_category_returns_204(make_authorized_client):
         icon_url="", name="sport", description="this is test", display_order=1
     )
 
-    url = reverse("categories-detail", kwargs={"pk": categ.category_id})
+    url = reverse("categories-detail", kwargs={"pk": categ.id})
 
     response = client.delete(url)
 
