@@ -21,7 +21,7 @@ router = DefaultRouter()
 router.register(r'addresses', AddressViewSet, basename='address')
 
 role_router = DefaultRouter()
-role_router.router.register(r"roles", RoleViewset, basename="roles")
+role_router.register(r"roles", RoleViewset, basename="roles")
 urlpatterns = [
     path("accounts/send-otp/", SendOTPView.as_view(), name="send_otp"),
     path("accounts/verify-otp/", VerifyOTPView.as_view(), name="verify_otp"),
