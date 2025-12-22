@@ -29,13 +29,23 @@ def make_authorized_client(db):
 # returns category data needed to create one
 @pytest.fixture
 def category_data():
-    return {
-        "icon_url": "https://test.com",
-        "name": "sport",
-        "slug": "sport-thisistest",
-        "description": "this is test",
-        "display_order": 1,
-    }
+    category = Category.objects.create(**category_data)
+
+    def _make(is_post_method_data=False):
+
+        return {
+            "category_id": category.category_id if is_post_method_data else category,
+            "name": "perfume",
+            "brand": "Tom ford",
+            "slug": "tom-ford-perfume",
+            "sku": "tom-ford",
+            "price": 99.99,
+            "weight_kg": 1.25,
+            "dimensions": "2cm x 10cm",
+            "description": "this is test",
+        }
+
+    return _make
 
 
 # returns products data needed to create one
