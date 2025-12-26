@@ -1,9 +1,10 @@
-from products.serializers import CategorySerializer, ProductSerializer, CartSerializer
+from products.serializers import CategorySerializer, ProductSerializer, CartSerializer, ProductImageSerializer
 from rest_framework import viewsets, status
 from django.shortcuts import get_object_or_404
-from products.models import Category, Product, Cart
+from products.models import Category, Product, Cart, ProductImage
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from datetime import datetime, timedelta
 from rest_framework.permissions import IsAuthenticated
 from products.permission import IsAdminUser
@@ -94,3 +95,28 @@ class UserCart(APIView):
         cart.save()
 
         return Response(CartSerializer(cart).data, status=status.HTTP_204_NO_CONTENT)
+
+
+class ProductImageViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductImageSerializer
+
+    def get_queryset(self):
+        product_id = self.kwargs.get("product_id")
+        if not Product.objects.filter(id=product_id).exists():
+            raise NotFound("Product not found")
+        return ProductImage.objects.filter(product_id=product_id)
+
+    def perform_create(self, serializer):
+        product_id = self.kwargs.get("product_id")
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            raise NotFound("Product not found")
+        serializer.save(product=product)
+
+
+class ProductImageDetailViewSet(viewsets.ModelViewSet):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
+    http_method_names = ["put", "patch", "delete"]
+    lookup_field = "product_image_id"
