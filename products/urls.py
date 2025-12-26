@@ -27,9 +27,8 @@ urlpatterns = [
     path(
         "carts/me/items/<int:item_id>/",
         views.UserCart.as_view(),
-        name="carts-me-items-detail",
+        name="carts-me-items-delete",
     ),
 ]
-
 urlpatterns += router.urls
 urlpatterns += images_router.urls
