@@ -47,9 +47,9 @@ class Admin(models.Model):
 
     job_title = models.CharField(max_length=100, verbose_name="عنوان شغلی")
     objects = AdminManager()
-    cantact_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره تماس")
+    contact_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره تماس")
     work_phone = models.CharField(max_length=20, validators=[validate_phone_number], verbose_name="شماره کاری")
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_admins', verbose_name="ایجاد شده توسط")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='verified_admins', verbose_name="ایجاد شده توسط", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="ایجاد شده در")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="بروزرسانی شده در")
 

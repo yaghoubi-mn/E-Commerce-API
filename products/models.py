@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from accounts.models import User
     
@@ -90,9 +91,10 @@ class Discount(models.Model):
 
     title = models.CharField(max_length=100)
     description = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
 
     code = models.CharField(max_length=50, unique=True)
-    type = models.CharField(max_length=20, default="percentage", choices=TYPE_CHOICES)
+    discount_type = models.CharField(max_length=20, default="percentage", choices=TYPE_CHOICES)
 
     value = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     min_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -101,8 +103,8 @@ class Discount(models.Model):
     usage_limit_per_user = models.PositiveIntegerField(null=True)
     used_count = models.PositiveIntegerField(default=0)
 
-    applies_to = models.CharField(max_length=20, default="all", choices=TYPE_CHOICES)
-    traget_ids = models.JSONField(default=list)
+    applies_to = models.CharField(max_length=20, default="all", choices=APPLIES_TO_CHOICES)
+    target_ids = models.JSONField(default=list)
     first_purchase_only = models.BooleanField(default=False)
     starts_at = models.DateTimeField()
     ends_at = models.DateTimeField()
@@ -144,3 +146,27 @@ class Cart(models.Model):
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, db_index=True)
+    rating = models.PositiveIntegerField(validators=[MinValueValidator(1, 'Min value is 1'), MaxValueValidator(5, 'Max value is 5')])
+    content = models.TextField()
+    
+    is_verified_purchase = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False, db_index=True)
+    helpful_count = models.PositiveIntegerField(default=0)
+    unhelpful_count = models.PositiveIntegerField(default=0)
+    reply_to = models.ForeignKey('self', on_delete=models.SET_NULL, related_name='replies', null=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class CommentVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    is_helpful = models.BooleanField()
+
+    class Meta:
+        unique_together = ('user', 'comment')

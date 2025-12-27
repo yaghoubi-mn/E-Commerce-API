@@ -1,5 +1,5 @@
 import pytest
-from accounts.models import User, Role
+from accounts.models import Admin, User, Role
 from products.models import Category
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.test import APIClient
@@ -58,6 +58,52 @@ def user(db, customer_role, phone_number, user_password):
     return user
 
 @pytest.fixture
+def admin_role(db):
+    return Role.objects.create(
+        name='Admin',
+        display_name='Admin',
+        description='',
+        permissions={},
+    )
+
+@pytest.fixture
+def admin_user(db, admin_role):
+    user = User.objects.create_user(
+        email='admin@admin.com',
+        phone_number="09123456767",
+        password='12345678',
+        role=admin_role,
+    )
+    
+    admin = Admin.objects.create_admin(
+        job_title='test admin',
+        contact_phone='09123456789',
+        work_phone='09123456789',
+        user=user
+    )
+    
+    return user
+
+
+@pytest.fixture
+def user_two(db, customer_role, user_password):
+    user = User.objects.create_user(
+        email='test2@example.com',
+        phone_number='09123456788',
+        password=user_password,
+        role=customer_role
+    )
+    user.is_active = True
+    user.save()
+    return user
+
+@pytest.fixture
 def authenticated_client(api_client, user):
     api_client.force_authenticate(user=user)
+    return api_client
+
+
+@pytest.fixture
+def admin_client(api_client, admin_user):
+    api_client.force_authenticate(user=admin_user)
     return api_client

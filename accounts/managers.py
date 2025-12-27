@@ -24,14 +24,13 @@ class UserManager(BaseUserManager):
 
 
 class AdminManager(models.Manager):
-    def create_admin(self, user_data, admin_data):
-        user = self.model.user.related_model.objects.create_user(**user_data, role='admin')
-        admin = self.create(user=user, **admin_data)
+    def create_admin(self, user, job_title, contact_phone, work_phone):
+        admin = self.create(user=user, job_title=job_title, contact_phone=contact_phone, work_phone=work_phone)
         return admin
 
 
 class SellerManager(models.Manager):
     def create_seller(self, user_data, seller_data):
-        user = self.model.user.related_model.objects.create_user(**user_data, role='seller')
+        user = self.model_meta.get_field('user').related_model.objects.create_user(**user_data, role='seller')
         seller = self.create(user=user, **seller_data)
         return seller
