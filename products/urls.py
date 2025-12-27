@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register(r"categories", views.CategoryViews, basename="categories")
 router.register(r"products", views.ProductViews, basename="products")
 router.register(r"carts", views.CartViews, basename="carts")
+router.register(r'discounts', views.DiscountViewSet, basename='discounts')
 
 urlpatterns = [
     path("carts/me/", views.GetCartView.as_view(), name="carts-me"),

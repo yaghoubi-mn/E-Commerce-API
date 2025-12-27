@@ -91,9 +91,10 @@ class Discount(models.Model):
 
     title = models.CharField(max_length=100)
     description = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
 
     code = models.CharField(max_length=50, unique=True)
-    type = models.CharField(max_length=20, default="percentage", choices=TYPE_CHOICES)
+    discount_type = models.CharField(max_length=20, default="percentage", choices=TYPE_CHOICES)
 
     value = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     min_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -102,8 +103,8 @@ class Discount(models.Model):
     usage_limit_per_user = models.PositiveIntegerField(null=True)
     used_count = models.PositiveIntegerField(default=0)
 
-    applies_to = models.CharField(max_length=20, default="all", choices=TYPE_CHOICES)
-    traget_ids = models.JSONField(default=list)
+    applies_to = models.CharField(max_length=20, default="all", choices=APPLIES_TO_CHOICES)
+    target_ids = models.JSONField(default=list)
     first_purchase_only = models.BooleanField(default=False)
     starts_at = models.DateTimeField()
     ends_at = models.DateTimeField()
@@ -169,4 +170,3 @@ class CommentVote(models.Model):
 
     class Meta:
         unique_together = ('user', 'comment')
-        

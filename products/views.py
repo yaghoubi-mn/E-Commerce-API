@@ -2,15 +2,15 @@ from django.db import transaction
 from django.db.models import F
 from rest_framework import permissions
 from rest_framework.decorators import action
-from products.serializers import CategorySerializer, CommentReadSerializer, CommentWriteSerializer, ProductSerializer, CartSerializer
+from products.serializers import CategorySerializer, CommentReadSerializer, CommentWriteSerializer, DiscountSerializer, ProductSerializer, CartSerializer
 from rest_framework import viewsets, status
 from django.shortcuts import get_object_or_404
-from products.models import Category, Comment, CommentVote, Product, Cart
+from products.models import Category, Comment, CommentVote, Discount, Product, Cart
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime, timedelta
 from rest_framework.permissions import IsAuthenticated
-from products.permission import IsAdminUser, IsOwnerOrReadOnly
+from products.permission import IsAdminOrReadOnly, IsAdminUser, IsOwnerOrReadOnly
 import json
 
 
@@ -103,7 +103,7 @@ class UserCart(APIView):
 class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     lookup_url_kwarg = 'comment_id'
-    
+
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return CommentWriteSerializer
@@ -118,7 +118,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             return Comment.objects.all()
 
         # 2. For List action (GET), we must filter by the Product ID in the URL.
-        #    Security: Only show approved comments to the public list.
         product_id = self.kwargs.get('product_id')
         return Comment.objects.filter(product_id=product_id, is_approved=True).order_by('-created_at')
 
@@ -129,8 +128,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         product_id = self.kwargs.get('product_id')
         product = get_object_or_404(Product, pk=product_id)
         
-        # Security: Logic to check verified purchase would go here
-        # is_verified = check_verified(self.request.user, product)
+        # TODO: verify
+        # is_verified_purchase = check_verified(self.request.user, product)
         
         serializer.save(
             user=self.request.user,
@@ -162,9 +161,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         comment = get_object_or_404(Comment, pk=comment_id)
 
         with transaction.atomic():
-            # Lock the comment row to prevent race conditions while reading/writing counts
-            # (Optional but recommended for high traffic)
-            # comment = Comment.objects.select_for_update().get(pk=comment_id) 
 
             vote_query = CommentVote.objects.filter(user=user, comment=comment)
             
@@ -172,8 +168,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                 vote = vote_query.first()
                 
                 if vote.is_helpful == is_helpful:
-                    # Scenario 1: User is voting the SAME thing again.
-                    # Behavior: Undo the vote (Toggle off)
+                    # User is voting the SAME thing again: Undo the vote (Toggle off)
                     vote.delete()
                     if is_helpful:
                         comment.helpful_count = F('helpful_count') - 1
@@ -182,7 +177,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                     message = "Vote removed"
                 
                 else:
-                    # Scenario 2: User is SWITCHING vote (e.g., Up -> Down)
+                    # User is SWITCHING vote (e.g., Up -> Down)
                     vote.is_helpful = is_helpful
                     vote.save()
                     
@@ -197,7 +192,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                     message = "Vote changed"
             
             else:
-                # Scenario 3: New Vote
+                # New Vote
                 CommentVote.objects.create(user=user, comment=comment, is_helpful=is_helpful)
                 if is_helpful:
                     comment.helpful_count = F('helpful_count') + 1
@@ -207,7 +202,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
             comment.save()
             
-            # Refresh to get the actual integers back from DB (since F() returns an expression)
             comment.refresh_from_db()
 
         return Response({
@@ -215,3 +209,12 @@ class CommentViewSet(viewsets.ModelViewSet):
             'helpful_count': comment.helpful_count,
             'unhelpful_count': comment.unhelpful_count
         }, status=status.HTTP_200_OK)
+
+
+class DiscountViewSet(viewsets.ModelViewSet):
+    queryset = Discount.objects.all().order_by('-starts_at')
+    serializer_class = DiscountSerializer
+    permission_classes = [IsAdminUser]
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
