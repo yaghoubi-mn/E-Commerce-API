@@ -43,8 +43,8 @@ class TestCategory:
     def test_get_category_list(self, authenticated_client, category_list_url, category):
         response = authenticated_client.get(category_list_url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
-        assert response.data[0]['name'] == category.name
+        assert len(response.data['results']) == 1
+        assert response.data['results'][0]['name'] == category.name
 
     def test_get_category_list_unauthenticated(self, api_client, category_list_url, category):
         response = api_client.get(category_list_url)

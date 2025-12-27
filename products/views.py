@@ -20,7 +20,7 @@ class CategoryViews(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated,
     ]
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('-created_at')
 
 class ProductViews(viewsets.ModelViewSet):
 
@@ -28,7 +28,7 @@ class ProductViews(viewsets.ModelViewSet):
     permission_classes = [
         IsAuthenticated,
     ]
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('-created_at')
 
 
 class CartViews(viewsets.ModelViewSet):

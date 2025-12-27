@@ -66,8 +66,8 @@ class TestProduct:
     def test_get_product_list(self, authenticated_client, product_list_url, product):
         response = authenticated_client.get(product_list_url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
-        assert response.data[0]['name'] == product.name
+        assert len(response.data['results']) == 1
+        assert response.data['results'][0]['name'] == product.name
 
     def test_get_product_list_unauthenticated(self, api_client, product_list_url, product):
         response = api_client.get(product_list_url)

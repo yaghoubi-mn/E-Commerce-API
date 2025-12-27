@@ -33,7 +33,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Always return addresses for the current user
-        return Address.objects.filter(user=self.request.user)
+        return Address.objects.filter(user=self.request.user).order_by('-created_at')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

@@ -88,8 +88,8 @@ class TestListComments:
         response = api_client.get(url)
         
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
-        assert response.data[0]['content'] == "Approve Me"
+        assert len(response.data['results']) == 1
+        assert response.data['results'][0]['content'] == "Approve Me"
 
     def test_list_comments_filters_by_product(self, api_client, product, product_two, user):
         """Should not see comments from other products."""
@@ -98,7 +98,7 @@ class TestListComments:
         
         url = reverse('product-comments-list', kwargs={'product_id': product.id})
         response = api_client.get(url)
-        assert len(response.data) == 0
+        assert len(response.data['results']) == 0
 
 
 @pytest.mark.django_db

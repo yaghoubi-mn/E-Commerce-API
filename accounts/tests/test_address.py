@@ -60,8 +60,8 @@ class TestAddress:
 
         response = authenticated_client.get(address_list_url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 2
-        assert response.data[0]['title'] == "Work Address"
+        assert len(response.data['results']) == 2
+        assert response.data['results'][0]['title'] == "Vacation Home"
 
     def test_get_address_list_unauthenticated(self, api_client, address_list_url):
         response = api_client.get(address_list_url)
