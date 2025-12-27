@@ -23,6 +23,20 @@ class Product(models.Model):
     weight_kg = models.DecimalField(max_digits=8, decimal_places=3)
     dimensions = models.CharField(max_length=50)
 
+    brand = models.CharField(max_length=100)
+    slug = models.CharField(max_length=255, unique=True)
+    sku = models.CharField(max_length=100, unique=True)
+
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    weight_kg = models.DecimalField(max_digits=8, decimal_places=3)
+    dimensions = models.CharField(max_length=50)
+
+    view_count = models.PositiveIntegerField(default=0)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+
+    review_count = models.PositiveIntegerField(default=0)
+    sold_count = models.PositiveIntegerField(default=0)
+
     view_count = models.PositiveIntegerField(default=0)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
 
@@ -59,6 +73,12 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
     parent = models.ForeignKey(
         "self", null=True, on_delete=models.SET_NULL
     )
@@ -68,6 +88,7 @@ class Category(models.Model):
     icon_url = models.URLField()
     banner_url = models.URLField(null=True)
 
+    display_order = models.IntegerField(null=True, blank=True)
     display_order = models.IntegerField(null=True)
 
     class Meta:
@@ -87,6 +108,7 @@ class Discount(models.Model):
         ("products", "محصولات"),
         ("categories", "دسته بندی ها"),
     ]
+
 
     title = models.CharField(max_length=100)
     description = models.TextField()

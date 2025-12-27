@@ -1,6 +1,13 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated
+
+from .serializers import CustomTokenObtainPairSerializer, RoleSerializer
+from .models import Role
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import viewsets
@@ -8,6 +15,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 
+ 
 
 from utils import error_messages
 
@@ -121,6 +129,13 @@ class ChangePasswordView(APIView):
             serializer.save()
             return Response({"detail": error_messages.PASSWORD_SUCCESSFULLY_CHANGED}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RoleViewset(viewsets.ModelViewSet):
+    serializer_class = RoleSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
+    queryset = Role.objects.all()
 
 
 class ResetPasswordView(APIView):

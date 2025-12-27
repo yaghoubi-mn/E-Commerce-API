@@ -88,7 +88,7 @@ def test_get_single_not_existence_cart_returns_404(make_authorized_client, cart_
     data = cart_data(False, user)
 
     cart = Cart.objects.create(**data)
-
+    
     url = reverse("carts-detail", kwargs={"pk": cart.id + 1})
 
     response = client.get(url)

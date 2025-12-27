@@ -1,7 +1,10 @@
+from django.urls import path
+from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 
+from .views import CustomTokenObtainPairView, RoleViewset
 from .views import (
     CustomTokenObtainPairView,
     RegisterView,
@@ -17,6 +20,8 @@ from .views import (
 router = DefaultRouter()
 router.register(r'addresses', AddressViewSet, basename='address')
 
+role_router = DefaultRouter()
+role_router.register(r"roles", RoleViewset, basename="roles")
 urlpatterns = [
     path("accounts/send-otp/", SendOTPView.as_view(), name="send_otp"),
     path("accounts/verify-otp/", VerifyOTPView.as_view(), name="verify_otp"),
@@ -28,4 +33,4 @@ urlpatterns = [
     path('accounts/register/', RegisterView.as_view(), name='register'),
     path('accounts/logout/', LogoutView.as_view(), name='logout'),
     path('accounts/', include(router.urls)),
-]
+] + role_router.urls
