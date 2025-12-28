@@ -1,6 +1,6 @@
 from datetime import timedelta
 import pytest
-from products.models import Category
+from products.models import Category, Product
 from django.utils import timezone
 
 
@@ -54,6 +54,45 @@ def product_data(category_data):
         }
 
     return _make
+
+@pytest.fixture
+def product(category_data):
+
+    category = Category.objects.create(**category_data)
+
+    product = Product.objects.create(
+        category=category,
+        name="perfume",
+        brand="Tom ford",
+        slug="tom-ford-perfume2",
+        sku="tom-ford2",
+        price=99.99,
+        weight_kg=1.25,
+        dimensions="2cm x 10cm",
+        description="this is test",
+    )
+
+    return product
+
+
+@pytest.fixture
+def product_two(category_data):
+
+    category = Category.objects.create(**category_data)
+
+    product = Product.objects.create(
+        category=category,
+        name="perfume 2",
+        brand="Tom ford",
+        slug="tom-ford-perfume",
+        sku="tom-ford",
+        price=99.99,
+        weight_kg=1.25,
+        dimensions="2cm x 10cm",
+        description="this is test",
+    )
+
+    return product
 
 
 @pytest.fixture

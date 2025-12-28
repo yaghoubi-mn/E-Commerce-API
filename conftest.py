@@ -147,6 +147,18 @@ def user(db, customer_role, phone_number, user_password):
     return user
 
 @pytest.fixture
+def user_two(db, customer_role, phone_number, user_password):
+    user = User.objects.create_user(
+        email='test2@example.com',
+        phone_number='09123456788',
+        password=user_password,
+        role=customer_role
+    )
+    user.is_active = True
+    user.save()
+    return user
+
+@pytest.fixture
 def authenticated_client(api_client, user):
     api_client.force_authenticate(user=user)
     return api_client
